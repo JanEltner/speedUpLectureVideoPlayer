@@ -19,29 +19,28 @@ import javafx.scene.media.MediaView;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import lib.SpectrumHandler;
 
 
 public class Main extends Application 
 {
-	private float groundspeed = (float) 1.3;
-	private float maxspeed = (float) 2.3;
-	
-	private int upperLimitPerRound = 13;
-	private int speedUpDelay = 7;
-	private boolean slowDowned = false;
-	private int delayCounter;
 
 	private Media movie = new Media("file:///D:/media.m4v");
 	private MediaPlayer player = new MediaPlayer(movie);
 	private MediaView mediaview = new MediaView(player);
+	private VBox vbox = new VBox();
+	private Slider timeSlider = new Slider();
+	private Stage stage;
+	
+	private SpectrumHandler specHandler = new SpectrumHandler(player);
 	
 	@Override
 	public void start(Stage stage) 
 	{
 		try 
 		{
-			Slider timeSlider = new Slider();
-			VBox vbox = new VBox();
+			this.stage = stage;
+			
 			vbox.getChildren().add(timeSlider);
 			
 			BorderPane root = new BorderPane();
@@ -52,29 +51,8 @@ public class Main extends Application
 			stage.setScene(scene);
 			stage.show();
 			
+			play();
 			
-			player.play();
-			player.setOnReady(new Runnable() {
-				
-				@Override
-				public void run() 
-				{
-					int playerViewHeight =player.getMedia().getHeight();
-					int width = player.getMedia().getWidth();
-					
-					stage.setMinHeight(playerViewHeight);
-					stage.setMinWidth(width);
-					
-					vbox.setMinSize(100,width);
-					vbox.setTranslateY(playerViewHeight-20);
-					
-					timeSlider.setMin(0.0);
-					timeSlider.setMax(player.getTotalDuration().toSeconds());
-					timeSlider.setMinWidth(width);
-					
-					player.setRate(groundspeed);
-				}
-			});
 			
 			player.currentTimeProperty().addListener(new ChangeListener<Duration>() {
 
@@ -102,60 +80,41 @@ public class Main extends Application
 		launch(args);
 	}
 	
+	private void play()
+	{
+		player.play();
+		player.setOnReady(new Runnable() {
+			
+			@Override
+			public void run() 
+			{
+				int playerViewHeight =player.getMedia().getHeight();
+				int width = player.getMedia().getWidth();
+				
+				stage.setMinHeight(playerViewHeight);
+				stage.setMinWidth(width);
+				
+				vbox.setMinSize(100,width);
+				vbox.setTranslateY(playerViewHeight-20);
+				
+				timeSlider.setMin(0.0);
+				timeSlider.setMax(player.getTotalDuration().toSeconds());
+				timeSlider.setMinWidth(width);
+				
+				player.setRate(specHandler.groundspeed);
+			}
+		});
+	}
+	
 	private void initPlayer()
 	{
-		float[] last = new float[5];
-		for(@SuppressWarnings("unused") float f : last)
-		{
-			f = (float) 0.0;
-		}
-		int upperLimit = upperLimitPerRound*last.length;
 		
 		player.setAudioSpectrumListener(new AudioSpectrumListener() {
 			
 			@Override
 			public void spectrumDataUpdate(double arg0, double arg1, float[] magnitudes, float[] arg3) 
 			{
-				float max = (float) 0.0;
-				for(int i = 0; i < magnitudes.length;i++)
-				{
-					float tmp = magnitudes[i] + 60;
-					if(tmp>max)
-					{
-						max = tmp;
-					}
-				}
-				float sum = 0;
-				for(int n=1;n<last.length;n++)
-				{
-					last[n-1] = last[n];
-					sum += last[n];
-				}
-				last[last.length-1] = max;
-				sum += max;
-				if(sum>upperLimit)
-				{
-					if(!slowDowned)
-					{
-						player.setRate(groundspeed);
-						player.setVolume(1.0);
-						slowDowned = true;
-					}
-					delayCounter = speedUpDelay;
-				}
-				else if(slowDowned && sum<= upperLimit)
-				{
-					if(delayCounter == 0)
-					{
-						player.setRate(maxspeed);
-						player.setVolume(0.3);
-						slowDowned = false;
-					}
-					else
-					{
-						delayCounter -= 1;
-					}
-				}				
+				specHandler.spectrumDataUpdate(magnitudes);
 			}
 		});
 	}
@@ -197,7 +156,7 @@ public class Main extends Application
 					movie = new Media("file:///" + filePath.replace("\\", "/"));
 					player = new MediaPlayer(movie);
 					mediaview.setMediaPlayer(player);
-					player.play();
+					play();
 					initPlayer();
 				}
 				event.setDropCompleted(success);
