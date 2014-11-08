@@ -12,7 +12,7 @@ public class SpectrumHandler
 	private boolean slowDowned = false;
 	private int delayCounter;
 	private float[] last;
-	private int upperLimit = upperLimitPerRound*this.last.length;
+	private int upperLimit;
 	private MediaPlayer player;
 	
 	public SpectrumHandler(MediaPlayer player) 
@@ -23,8 +23,7 @@ public class SpectrumHandler
 		{
 			f = (float) 0.0;
 		}
-		
-		
+		this.upperLimit = this.upperLimitPerRound*this.last.length;
 	}
 	
 	public void spectrumDataUpdate(float[] magnitudes) 
