@@ -9,6 +9,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.Slider;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
@@ -31,6 +33,7 @@ public class Main extends Application
 	private VBox vbox = new VBox();
 	private Slider timeSlider = new Slider();
 	private Stage stage;
+	private boolean playing = false;
 	
 	private SpectrumHandler specHandler = new SpectrumHandler(player);
 	
@@ -50,6 +53,27 @@ public class Main extends Application
 			scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 			stage.setScene(scene);
 			stage.show();
+			
+			root.setOnKeyPressed(new EventHandler<KeyEvent>() {
+				
+				@Override
+				public void handle(KeyEvent keyEvent) 
+				{
+					if(keyEvent.getCode()==KeyCode.SPACE)
+					{
+						if(playing)
+						{
+							playing = false;
+							player.pause();
+						}
+						else
+						{
+							playing = true;
+							player.play();
+						}
+					}
+				}
+			});
 			
 			play();
 			
@@ -82,6 +106,7 @@ public class Main extends Application
 	
 	private void play()
 	{
+		this.playing = true;
 		player.play();
 		player.setOnReady(new Runnable() {
 			
