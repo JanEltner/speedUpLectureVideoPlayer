@@ -14,6 +14,7 @@ import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -37,8 +38,11 @@ public class Main extends Application
 	private VBox vbox = new VBox();
 	private Slider timeSlider = new Slider();
 	private Stage stage;
-	private boolean playing = false;
+	private ToggleButton playButton = new ToggleButton();
+	private ToggleGroup playButtonGroup = new ToggleGroup();
 	
+	private boolean playing = false;
+	private boolean changingTimePosition = false;
 	private SpectrumHandler specHandler = new SpectrumHandler(player);
 	
 	@Override
@@ -49,8 +53,6 @@ public class Main extends Application
 			this.stage = stage;
 			
 			HBox controlBox = new HBox();
-			ToggleButton playButton = new ToggleButton();
-			ToggleGroup playButtonGroup = new ToggleGroup();
 			playButton.setToggleGroup(playButtonGroup);
 			
 			controlBox.getChildren().add(playButton);
@@ -100,10 +102,39 @@ public class Main extends Application
 
 
 				@Override
-				public void changed(ObservableValue<? extends Duration> observableValue,
-						Duration arg1, Duration currentTime) 
+				public void changed(ObservableValue<? extends Duration> observableValue, Duration arg1, Duration currentTime) 
 				{
-					timeSlider.setValue(currentTime.toSeconds());
+					if(!changingTimePosition)
+					{
+						timeSlider.setValue(currentTime.toSeconds());
+					}
+				}
+			});
+			
+			timeSlider.setOnMousePressed(new EventHandler<MouseEvent>() {
+
+				@Override
+				public void handle(MouseEvent arg0) 
+				{
+					changingTimePosition = true;
+				}
+			});
+			
+			timeSlider.setOnMouseReleased(new EventHandler<MouseEvent>() {
+
+				@Override
+				public void handle(MouseEvent arg0) 
+				{
+					changingTimePosition = false;
+				}
+			});
+			
+			timeSlider.setOnMouseClicked(new EventHandler<MouseEvent>() {
+
+				@Override
+				public void handle(MouseEvent arg0) 
+				{
+					player.seek(Duration.seconds(timeSlider.getValue()));
 				}
 			});
 			
@@ -156,8 +187,8 @@ public class Main extends Application
 				
 				timeSlider.setMin(0.0);
 				timeSlider.setMax(player.getTotalDuration().toSeconds());
-				timeSlider.setMinWidth(width);
-				
+				timeSlider.setMinWidth(width-playButton.getWidth());
+				timeSlider.setTranslateY(playButton.getHeight()/2.0);
 				player.setRate(specHandler.groundspeed);
 			}
 		});
