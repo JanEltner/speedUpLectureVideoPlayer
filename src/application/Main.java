@@ -19,31 +19,27 @@ import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.media.AudioSpectrumListener;
 import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import lib.SpectrumHandler;
+import uiComponents.SpeedUpMoviePlayer;
 
 
 public class Main extends Application 
 {
 
 	private Media movie = new Media("file:///D:/media.m4v");
-	private MediaPlayer player = new MediaPlayer(movie);
-	private MediaView mediaview = new MediaView(player);
+	private SpeedUpMoviePlayer player2 = new SpeedUpMoviePlayer(movie);
+	private MediaView mediaview = new MediaView(player2.getPlayer());
 	private VBox vbox = new VBox();
 	private Slider timeSlider = new Slider();
 	private Stage stage;
 	private ToggleButton playButton = new ToggleButton();
 	private ToggleGroup playButtonGroup = new ToggleGroup();
 	
-	private boolean playing = false;
 	private boolean changingTimePosition = false;
-	private SpectrumHandler specHandler = new SpectrumHandler(player);
 	
 	@Override
 	public void start(Stage stage) 
@@ -98,7 +94,7 @@ public class Main extends Application
 			play();
 			
 			
-			player.currentTimeProperty().addListener(new ChangeListener<Duration>() {
+			player2.getPlayer().currentTimeProperty().addListener(new ChangeListener<Duration>() {
 
 
 				@Override
@@ -134,11 +130,10 @@ public class Main extends Application
 				@Override
 				public void handle(MouseEvent arg0) 
 				{
-					player.seek(Duration.seconds(timeSlider.getValue()));
+					player2.getPlayer().seek(Duration.seconds(timeSlider.getValue()));
 				}
 			});
 			
-			initPlayer();
 			setupDragAndDrop(root);
 			
 		} 
@@ -150,16 +145,7 @@ public class Main extends Application
 	
 	public void switchPlay() 
 	{
-		if(playing)
-		{
-			playing = false;
-			player.pause();
-		}
-		else
-		{
-			playing = true;
-			player.play();
-		}
+		player2.switchPlay();
 	}
 	
 	public static void main(String[] args) 
@@ -169,43 +155,10 @@ public class Main extends Application
 	
 	private void play()
 	{
-		this.playing = true;
-		player.play();
-		player.setOnReady(new Runnable() {
-			
-			@Override
-			public void run() 
-			{
-				int playerViewHeight =player.getMedia().getHeight();
-				int width = player.getMedia().getWidth();
-				
-				stage.setMinHeight(playerViewHeight);
-				stage.setMinWidth(width);
-				
-				vbox.setMinSize(100,width);
-				vbox.setTranslateY(playerViewHeight-20);
-				
-				timeSlider.setMin(0.0);
-				timeSlider.setMax(player.getTotalDuration().toSeconds());
-				timeSlider.setMinWidth(width-playButton.getWidth());
-				timeSlider.setTranslateY(playButton.getHeight()/2.0);
-				player.setRate(specHandler.groundspeed);
-			}
-		});
+		this.player2.play(stage, vbox, timeSlider, playButton);
 	}
 	
-	private void initPlayer()
-	{
-		
-		player.setAudioSpectrumListener(new AudioSpectrumListener() {
-			
-			@Override
-			public void spectrumDataUpdate(double arg0, double arg1, float[] magnitudes, float[] arg3) 
-			{
-				specHandler.spectrumDataUpdate(magnitudes);
-			}
-		});
-	}
+	
 
 	private void setupDragAndDrop(Node node)
 	{
@@ -238,14 +191,10 @@ public class Main extends Application
 				{
 					success = true;
 					String filePath = db.getFiles().get(0).toString();
-					System.out.println(filePath);
-					player.stop();
-					player = null;
 					movie = new Media("file:///" + filePath.replace("\\", "/"));
-					player = new MediaPlayer(movie);
-					mediaview.setMediaPlayer(player);
+					player2.switchMedia(movie);
+					mediaview.setMediaPlayer(player2.getPlayer());
 					play();
-					initPlayer();
 				}
 				event.setDropCompleted(success);
 				event.consume();
