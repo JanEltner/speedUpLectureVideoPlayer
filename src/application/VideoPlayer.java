@@ -22,19 +22,17 @@ import lib.DragAndDrop;
 import uiComponents.SpeedUpMoviePlayer;
 import uiComponents.TimeSlider;
 
-
-public class Main extends Application 
+public class VideoPlayer extends Application 
 {
-
 	private Media movie = new Media("file:///D:/media.m4v");
-	private SpeedUpMoviePlayer player2 = new SpeedUpMoviePlayer(movie);
-	private MediaView mediaview = new MediaView(player2.getPlayer());
+	private SpeedUpMoviePlayer player = new SpeedUpMoviePlayer(movie);
+	private MediaView mediaview = new MediaView(player.getPlayer());
 	private VBox vbox = new VBox();
-	private TimeSlider timeSlider = new TimeSlider(player2);
+	private TimeSlider timeSlider = new TimeSlider(player);
 	protected Stage stage;
 	private ToggleButton playButton = new ToggleButton();
 	private ToggleGroup playButtonGroup = new ToggleGroup();
-	
+	private BorderPane root;
 	
 	@Override
 	public void start(Stage stage) 
@@ -44,32 +42,18 @@ public class Main extends Application
 			this.stage = stage;
 			
 			HBox controlBox = new HBox();
-			playButton.setToggleGroup(playButtonGroup);
-			
 			controlBox.getChildren().add(playButton);
 			controlBox.getChildren().add(timeSlider);
-			
 			vbox.getChildren().add(controlBox);
 			
-			BorderPane root = new BorderPane();
+			root = new BorderPane();
 			root.getChildren().add(mediaview);
 			root.getChildren().add(vbox);
 			Scene scene = new Scene(root,400,400,Color.BLACK);
 			scene.getStylesheets().addAll(getClass().getResource("application.css").toExternalForm());
-			playButton.getStylesheets().addAll(getClass().getResource("application.css").toExternalForm());
-			playButton.getStyleClass().add("playPauseButton");
-			playButton.setScaleX(0.7);
-			playButton.setScaleY(0.7);
+			initPlayButton();
 			root.requestFocus();
-			playButtonGroup.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
-
-				@Override
-				public void changed(ObservableValue<? extends Toggle> arg0, Toggle arg1, Toggle arg2) 
-				{
-					switchPlay();
-					root.requestFocus();
-				}
-			});
+			
 			stage.setScene(scene);
 			stage.show();
 			
@@ -81,17 +65,14 @@ public class Main extends Application
 				{
 					if(keyEvent.getCode()==KeyCode.SPACE)
 					{
-						switchPlay();
+						player.switchPlay();
 					}
 				}
 			});
 			
-			this.player2.play(stage, vbox, timeSlider, playButton);
-			
-			
-			player2.getPlayer().currentTimeProperty().addListener(new ChangeListener<Duration>() {
-
-
+			this.player.play(this);
+			player.getPlayer().currentTimeProperty().addListener(new ChangeListener<Duration>(){
+				
 				@Override
 				public void changed(ObservableValue<? extends Duration> observableValue, Duration arg1, Duration currentTime) 
 				{
@@ -99,10 +80,7 @@ public class Main extends Application
 				}
 			});
 			
-			
-			
-			DragAndDrop.setupDragAndDrop(root, mediaview, player2, stage, vbox, timeSlider, playButton);
-			
+			DragAndDrop.setupDragAndDrop(root, this);
 		} 
 		catch(Exception e) 
 		{
@@ -110,13 +88,55 @@ public class Main extends Application
 		}
 	}
 	
-	public void switchPlay() 
+	public void initPlayButton()
 	{
-		player2.switchPlay();
+		playButton.setToggleGroup(playButtonGroup);
+		playButton.getStylesheets().addAll(getClass().getResource("application.css").toExternalForm());
+		playButton.getStyleClass().add("playPauseButton");
+		playButton.setScaleX(0.7);
+		playButton.setScaleY(0.7);
+		playButtonGroup.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
+
+			@Override
+			public void changed(ObservableValue<? extends Toggle> arg0, Toggle arg1, Toggle arg2) 
+			{
+				player.switchPlay();
+				root.requestFocus();
+			}
+		});
 	}
 	
 	public static void main(String[] args) 
 	{
 		launch(args);
 	}
+
+	public Media getMovie() {
+		return movie;
+	}
+
+	public SpeedUpMoviePlayer getPlayer() {
+		return player;
+	}
+
+	public MediaView getMediaview() {
+		return mediaview;
+	}
+
+	public TimeSlider getTimeSlider() {
+		return timeSlider;
+	}
+
+	public Stage getStage() {
+		return stage;
+	}
+
+	public ToggleButton getPlayButton() {
+		return playButton;
+	}
+
+	public VBox getVbox() {
+		return vbox;
+	}
+	
 }

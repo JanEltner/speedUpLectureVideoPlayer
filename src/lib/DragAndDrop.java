@@ -1,21 +1,16 @@
 package lib;
 
-import uiComponents.SpeedUpMoviePlayer;
-import uiComponents.TimeSlider;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
-import javafx.scene.control.ToggleButton;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
-import javafx.scene.layout.VBox;
 import javafx.scene.media.Media;
-import javafx.scene.media.MediaView;
-import javafx.stage.Stage;
+import application.VideoPlayer;
 
 public class DragAndDrop 
 {
-	public static void setupDragAndDrop(Node node, MediaView mediaview, SpeedUpMoviePlayer player,Stage stage, VBox vbox, TimeSlider timeSlider, ToggleButton playButton)
+	public static void setupDragAndDrop(Node node, VideoPlayer main)
 	{
 
 		node.setOnDragOver(new EventHandler<DragEvent>() {
@@ -47,9 +42,9 @@ public class DragAndDrop
 					success = true;
 					String filePath = db.getFiles().get(0).toString();
 					Media movie = new Media("file:///" + filePath.replace("\\", "/"));
-					player.switchMedia(movie);
-					mediaview.setMediaPlayer(player.getPlayer());
-					player.play(stage, vbox, timeSlider, playButton);
+					main.getPlayer().switchMedia(movie);
+					main.getMediaview().setMediaPlayer(main.getPlayer().getPlayer());
+					main.getPlayer().play(main);
 				}
 				event.setDropCompleted(success);
 				event.consume();
