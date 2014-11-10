@@ -1,6 +1,5 @@
 package uiComponents;
 
-import javafx.scene.control.Slider;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.AudioSpectrumListener;
@@ -14,6 +13,7 @@ public class SpeedUpMoviePlayer
 {
 	private Media movie;
 	private MediaPlayer player;
+	private SpeedUpMoviePlayer instance;
 
 	private SpectrumHandler specHandler;
 
@@ -21,13 +21,14 @@ public class SpeedUpMoviePlayer
 	
 	public SpeedUpMoviePlayer(Media media) 
 	{
+		instance = this;
 		this.movie = media;
 		this.player = new MediaPlayer(this.movie);
 		this.specHandler = new SpectrumHandler(player);
 	}
 	
 	
-	public void play(Stage stage, VBox vbox, Slider timeSlider, ToggleButton playButton)
+	public void play(Stage stage, VBox vbox, TimeSlider timeSlider, ToggleButton playButton)
 	{
 		this.playing = true;
 		player.play();
@@ -45,10 +46,8 @@ public class SpeedUpMoviePlayer
 				vbox.setMinSize(100,width);
 				vbox.setTranslateY(playerViewHeight-20);
 				
-				timeSlider.setMin(0.0);
-				timeSlider.setMax(player.getTotalDuration().toSeconds());
-				timeSlider.setMinWidth(0.97*(width-playButton.getWidth()));
-				timeSlider.setTranslateY(playButton.getHeight()/2.0);
+				timeSlider.init(instance, playButton, width);
+				
 				player.setRate(specHandler.groundspeed);
 			}
 		});

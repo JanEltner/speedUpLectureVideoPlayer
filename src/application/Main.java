@@ -6,7 +6,6 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Slider;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
@@ -14,7 +13,6 @@ import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -25,6 +23,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import uiComponents.SpeedUpMoviePlayer;
+import uiComponents.TimeSlider;
 
 
 public class Main extends Application 
@@ -34,12 +33,11 @@ public class Main extends Application
 	private SpeedUpMoviePlayer player2 = new SpeedUpMoviePlayer(movie);
 	private MediaView mediaview = new MediaView(player2.getPlayer());
 	private VBox vbox = new VBox();
-	private Slider timeSlider = new Slider();
+	private TimeSlider timeSlider = new TimeSlider(player2);
 	private Stage stage;
 	private ToggleButton playButton = new ToggleButton();
 	private ToggleGroup playButtonGroup = new ToggleGroup();
 	
-	private boolean changingTimePosition = false;
 	
 	@Override
 	public void start(Stage stage) 
@@ -100,39 +98,11 @@ public class Main extends Application
 				@Override
 				public void changed(ObservableValue<? extends Duration> observableValue, Duration arg1, Duration currentTime) 
 				{
-					if(!changingTimePosition)
-					{
-						timeSlider.setValue(currentTime.toSeconds());
-					}
+					timeSlider.setTimeValue(currentTime);
 				}
 			});
 			
-			timeSlider.setOnMousePressed(new EventHandler<MouseEvent>() {
-
-				@Override
-				public void handle(MouseEvent arg0) 
-				{
-					changingTimePosition = true;
-				}
-			});
 			
-			timeSlider.setOnMouseReleased(new EventHandler<MouseEvent>() {
-
-				@Override
-				public void handle(MouseEvent arg0) 
-				{
-					changingTimePosition = false;
-				}
-			});
-			
-			timeSlider.setOnMouseClicked(new EventHandler<MouseEvent>() {
-
-				@Override
-				public void handle(MouseEvent arg0) 
-				{
-					player2.getPlayer().seek(Duration.seconds(timeSlider.getValue()));
-				}
-			});
 			
 			setupDragAndDrop(root);
 			
