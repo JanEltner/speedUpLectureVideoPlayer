@@ -1,1 +1,6 @@
-/* JavaFX CSS - Leave this comment until you have at least create one rule which uses -fx-Property */
+.playPauseButton{
+    -fx-graphic: url('file:///../resources/pause.png');
+}
+.playPauseButton:selected{
+    -fx-graphic: url('file:///../resources/play.png')
+}

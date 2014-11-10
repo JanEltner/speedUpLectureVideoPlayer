@@ -7,12 +7,16 @@ import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Slider;
+import javafx.scene.control.Toggle;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.AudioSpectrumListener;
 import javafx.scene.media.Media;
@@ -44,15 +48,38 @@ public class Main extends Application
 		{
 			this.stage = stage;
 			
-			vbox.getChildren().add(timeSlider);
+			HBox controlBox = new HBox();
+			ToggleButton playButton = new ToggleButton();
+			ToggleGroup playButtonGroup = new ToggleGroup();
+			playButton.setToggleGroup(playButtonGroup);
+			
+			controlBox.getChildren().add(playButton);
+			controlBox.getChildren().add(timeSlider);
+			
+			vbox.getChildren().add(controlBox);
 			
 			BorderPane root = new BorderPane();
 			root.getChildren().add(mediaview);
 			root.getChildren().add(vbox);
 			Scene scene = new Scene(root,400,400,Color.BLACK);
-			scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+			scene.getStylesheets().addAll(getClass().getResource("application.css").toExternalForm());
+			playButton.getStylesheets().addAll(getClass().getResource("application.css").toExternalForm());
+			playButton.getStyleClass().add("playPauseButton");
+			playButton.setScaleX(0.7);
+			playButton.setScaleY(0.7);
+			root.requestFocus();
+			playButtonGroup.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
+
+				@Override
+				public void changed(ObservableValue<? extends Toggle> arg0, Toggle arg1, Toggle arg2) 
+				{
+					switchPlay();
+					root.requestFocus();
+				}
+			});
 			stage.setScene(scene);
 			stage.show();
+			
 			
 			root.setOnKeyPressed(new EventHandler<KeyEvent>() {
 				
@@ -61,16 +88,7 @@ public class Main extends Application
 				{
 					if(keyEvent.getCode()==KeyCode.SPACE)
 					{
-						if(playing)
-						{
-							playing = false;
-							player.pause();
-						}
-						else
-						{
-							playing = true;
-							player.play();
-						}
+						switchPlay();
 					}
 				}
 			});
@@ -96,6 +114,20 @@ public class Main extends Application
 		catch(Exception e) 
 		{
 			e.printStackTrace();
+		}
+	}
+	
+	public void switchPlay() 
+	{
+		if(playing)
+		{
+			playing = false;
+			player.pause();
+		}
+		else
+		{
+			playing = true;
+			player.play();
 		}
 	}
 	
