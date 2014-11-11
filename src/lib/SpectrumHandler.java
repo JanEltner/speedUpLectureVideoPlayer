@@ -7,7 +7,7 @@ public class SpectrumHandler
 	public float groundspeed = (float) 1.3;
 	private float maxspeed = (float) 2.3;
 	
-	private int upperLimitPerRound = 13;
+	private int upperLimitPerRound = 20;
 	private int speedUpDelay = 7;
 	private boolean slowDowned = false;
 	private int delayCounter;

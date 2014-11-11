@@ -57,12 +57,11 @@ public class SpeedUpMoviePlayer
 
 		player.stop();
 		player = null;
-		player = new MediaPlayer(movie);
+		player = new MediaPlayer(media);
 	}
 	
 	private void initPlayer()
 	{
-		
 		player.setAudioSpectrumListener(new AudioSpectrumListener() {
 			
 			@Override
