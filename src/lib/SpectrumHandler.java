@@ -69,4 +69,51 @@ public class SpectrumHandler
 			}
 		}	
 	}
+
+	public float getGroundspeed() {
+		return groundspeed;
+	}
+
+	public void setGroundspeed(float groundspeed) {
+		this.groundspeed = groundspeed;
+	}
+
+	public float getMaxspeed() {
+		return maxspeed;
+	}
+
+	public void setMaxspeed(float maxspeed) {
+		this.maxspeed = maxspeed;
+	}
+
+	public int getUpperLimitPerRound() {
+		return upperLimitPerRound;
+	}
+
+	public void setUpperLimitPerRound(int upperLimitPerRound) {
+		this.upperLimitPerRound = upperLimitPerRound;
+		this.upperLimit = this.upperLimitPerRound*this.last.length;
+	}
+
+	public int getSpeedUpDelay() {
+		return speedUpDelay;
+	}
+
+	public void setSpeedUpDelay(int speedUpDelay) {
+		this.speedUpDelay = speedUpDelay;
+	}
+	
+	public int getWindows(){
+		return last.length;
+	}
+	
+	public void setWindows(int windows){
+		float[] tmp = new float[windows];
+		int smallerWindowsBegin = (windows<last.length)?last.length-windows:0;
+		for(int i = 0;smallerWindowsBegin+i<last.length;i++)
+		{
+			tmp[i] = last[smallerWindowsBegin+i];
+		}
+		last = tmp;
+	}
 }

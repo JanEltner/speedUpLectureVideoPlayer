@@ -86,6 +86,10 @@ public class SpeedUpMoviePlayer
 		}
 	}
 	
+	public SpectrumHandler getSpecHandler() {
+		return specHandler;
+	}
+
 	public MediaPlayer getPlayer() 
 	{
 		return player;
